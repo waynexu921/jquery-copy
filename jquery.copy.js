@@ -39,8 +39,49 @@ function copyText(obj) {
   //var $temp = $('<input>'); // Line feed is not supported
   var $temp = $('<textarea>');
   $('body').append($temp);
-  $temp.val(text).select();
+  $temp.val(text)
+  select($temp);
   var res = document.execCommand('copy');
   $temp.remove();
   return res;
+}
+function select(element) {
+    var selectedText;
+    element=element.get(0);
+    if (element.nodeName === 'SELECT') {
+        element.focus();
+
+        selectedText = element.value;
+    }
+    else if (element.nodeName === 'INPUT' || element.nodeName === 'TEXTAREA') {
+        var isReadOnly = element.hasAttribute('readonly');
+
+        if (!isReadOnly) {
+            element.setAttribute('readonly', '');
+        }
+
+        element.select();
+        element.setSelectionRange(0, element.value.length);
+
+        if (!isReadOnly) {
+            element.removeAttribute('readonly');
+        }
+
+        selectedText = element.value;
+    }
+    else {
+        if (element.hasAttribute('contenteditable')) {
+            element.focus();
+        }
+        var selection = window.getSelection();
+        var range = document.createRange();
+
+        range.selectNodeContents(element);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        selectedText = selection.toString();
+    }
+
+    return selectedText;
 }
